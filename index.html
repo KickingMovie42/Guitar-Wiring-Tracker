@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183c32">
+  <meta name="description" content="Trace guitar wiring diagrams, track each connection, and save your progress. A private, browser-local wiring workspace.">
+  <title>Guitar Wiring Tracker</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="./" aria-label="Guitar Wiring Tracker home">
+      <span class="brand-icon" aria-hidden="true">⌁</span>
+      <span>GUITAR <strong>WIRING TRACKER</strong></span>
+    </a>
+    <div class="header-actions">
+      <span id="save-status" class="save-status">Saved on this device</span>
+      <button id="import-button" class="quiet">Import project</button>
+      <button id="export-button" class="primary">↓ Export project</button>
+      <button id="help-button" class="icon-button" aria-label="Open help">?</button>
+    </div>
+  </header>
+  <main>
+    <section class="project-heading" aria-label="Project">
+      <div>
+        <p class="eyebrow">YOUR WORKBENCH <span>/</span> ONE CONNECTION AT A TIME</p>
+        <label class="sr-only" for="project-name">Project name</label>
+        <input id="project-name" class="project-name" maxlength="120" value="Classic single-coil build">
+        <p id="project-subtitle">A clear path from diagram to finished guitar.</p>
+      </div>
+      <div class="project-actions">
+        <button id="example-button" class="quiet">Load example</button>
+        <button id="upload-button" class="outline">↑ Upload diagram</button>
+      </div>
+    </section>
+    <div class="workspace">
+      <section class="diagram-panel" aria-label="Wiring diagram workspace">
+        <div class="toolbar">
+          <div class="mode-switch" role="group" aria-label="Workspace mode">
+            <button data-mode="track" aria-pressed="true"><span aria-hidden="true">✓</span> Track</button>
+            <button data-mode="trace" aria-pressed="false"><span aria-hidden="true">⌁</span> Trace</button>
+            <button data-mode="edit" aria-pressed="false"><span aria-hidden="true">✎</span> Edit</button>
+            <button data-mode="pan" aria-pressed="false"><span aria-hidden="true">✥</span> Pan</button>
+          </div>
+          <div class="history-tools">
+            <button id="undo-button" aria-label="Undo last change" title="Undo (Ctrl/Cmd Z)" disabled>↶ <span>Undo</span></button>
+            <button id="redo-button" aria-label="Redo last change" title="Redo (Ctrl/Cmd Shift Z)" disabled>↷</button>
+          </div>
+        </div>
+        <div class="diagram-meta"><span><i class="status-dot"></i> <span id="diagram-name">Example · single-coil layout</span></span><span id="mode-badge">TRACK MODE</span></div>
+        <div id="canvas" class="canvas" data-mode="track">
+          <svg id="diagram-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Interactive wiring diagram. Use the checklist for keyboard-accessible wire controls." viewBox="-45 -35 1090 720">
+            <rect id="diagram-paper" x="0" y="0" width="1000" height="650" rx="12" fill="#fff"/>
+            <image id="diagram-image" x="0" y="0" width="1000" height="650" href="assets/diagrams/example-wiring.svg"/>
+            <g id="wire-layer"></g>
+            <g id="draft-layer"></g>
+            <g id="handle-layer"></g>
+          </svg>
+          <div class="canvas-controls" role="group" aria-label="Diagram zoom">
+            <button id="zoom-out" aria-label="Zoom out">−</button>
+            <output id="zoom-label">100%</output>
+            <button id="zoom-in" aria-label="Zoom in">+</button>
+            <span class="control-divider"></span>
+            <button id="fit-button">Fit</button>
+          </div>
+        </div>
+        <div id="trace-bar" class="trace-bar" hidden>
+          <span id="trace-count">Tap along a wire to add points.</span>
+          <button id="remove-draft-point">↶ Last point</button>
+          <button id="cancel-trace">Cancel</button>
+          <button id="finish-trace" class="primary" disabled>Finish wire</button>
+        </div>
+        <div class="canvas-footer"><span id="mode-hint">Tap a traced wire to mark it complete.</span><span class="desktop-hint">Scroll to zoom · Space + drag to pan</span></div>
+      </section>
+      <aside class="sidebar" aria-label="Project controls">
+        <section class="progress-card">
+          <div class="section-heading"><h2>Build progress</h2><span class="small-tag">CONNECTIONS</span></div>
+          <div class="progress-numbers"><strong id="progress-percent">0<span>%</span></strong><span id="progress-count">0 of 8 complete</span></div>
+          <progress id="progress-bar" max="8" value="0" aria-label="Wire completion"></progress>
+          <p id="progress-message">A little patience. A great-sounding guitar.</p>
+        </section>
+        <section class="checklist-card">
+          <div class="section-heading"><h2>Wire checklist</h2><span id="wire-count" class="count-badge">8</span></div>
+          <label class="search-label"><span aria-hidden="true">⌕</span><input id="wire-search" type="search" placeholder="Find a connection…" aria-label="Search wires"></label>
+          <div class="filter-tabs" role="group" aria-label="Filter checklist">
+            <button data-filter="all" aria-pressed="true">All</button>
+            <button data-filter="pending" aria-pressed="false">To do</button>
+            <button data-filter="complete" aria-pressed="false">Complete</button>
+          </div>
+          <ul id="wire-list" class="wire-list"></ul>
+          <p id="empty-list" class="empty-list" hidden>No connections here yet. Trace a wire to get started.</p>
+          <button id="add-wire-button" class="add-wire">+ Trace a new wire</button>
+        </section>
+        <section id="editor-card" class="editor-card" hidden>
+          <div class="section-heading"><h2 id="editor-title">Wire details</h2><button id="close-editor" class="icon-button" aria-label="Close wire editor">×</button></div>
+          <form id="wire-form">
+            <label for="wire-label">Connection name</label><input id="wire-label" maxlength="120" required>
+            <div class="field-row"><div><label for="wire-color">Wire color</label><input id="wire-color" type="color" value="#cc6650"></div><div><label for="wire-width">Line width</label><input id="wire-width" type="number" min="1" max="30" value="5" step="1"></div></div>
+            <button class="primary full-width" type="submit">Save details</button>
+          </form>
+          <p id="edit-hint" class="muted">Drag points to adjust the path. Double-click a segment to insert a point.</p>
+          <div class="edit-actions"><button id="remove-point" disabled>Remove point</button><button id="delete-wire" class="danger">Delete wire</button></div>
+        </section>
+        <section class="view-card">
+          <h2>Diagram display</h2>
+          <label class="setting-row" for="completed-style">Completed wires<select id="completed-style"><option value="fade">Fade</option><option value="hide">Hide</option><option value="show">Keep visible</option></select></label>
+          <label class="setting-row" for="image-opacity">Original diagram <output id="opacity-label">100%</output></label>
+          <input id="image-opacity" aria-label="Original diagram opacity" type="range" min="0" max="100" value="100">
+          <p class="muted">Only traced overlays fade or hide. Lines in an uploaded image stay in the original diagram.</p>
+        </section>
+        <div class="local-note"><span aria-hidden="true">◈</span><p>Your workspace stays on this device.<br>Export a project to keep a portable backup.</p></div>
+      </aside>
+    </div>
+    <footer class="page-footer"><span>MADE FOR THE HANDS-ON PART.</span><button id="reset-progress" class="text-button">Reset progress</button></footer>
+  </main>
+  <input id="diagram-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
+  <input id="project-file" type="file" accept=".json,application/json" hidden>
+  <dialog id="overlap-dialog" aria-labelledby="overlap-title"><div class="dialog-header"><h2 id="overlap-title">Choose a connection</h2><button data-close="overlap-dialog" aria-label="Close wire choices">×</button></div><p>These wires overlap here. Choose the one you meant.</p><div id="overlap-options"></div></dialog>
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">Replace this project?</h2><p id="confirm-message"></p><div class="dialog-actions"><button id="confirm-cancel">Cancel</button><button id="confirm-ok" class="primary">Continue</button></div></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <div class="dialog-header"><h2 id="help-title">A clearer way to wire.</h2><button data-close="help-dialog" aria-label="Close help">×</button></div>
+    <ol class="help-steps"><li><strong>Start with a diagram.</strong> Upload a PNG, JPG, WebP, GIF, or SVG, or explore the example. Uploading a picture does not recognize wires.</li><li><strong>Trace each connection.</strong> Choose Trace, tap points along a wire, then Finish wire. Give it a name and color. Hold Shift to align the next point.</li><li><strong>Make it precise.</strong> Choose Edit and select a wire. Drag its points; double-click a segment to add a point. Select a point and choose Remove point to delete it.</li><li><strong>Track the build.</strong> In Track mode, tap a wire or check it off in the list. At crossings, choose from the overlapping wires. Hidden wires can always be restored from the checklist.</li><li><strong>Keep a backup.</strong> Export includes the diagram, paths, display preferences, and progress. Import it on another device. Undo/redo history lasts for the current session.</li></ol>
+    <p class="muted">Zoom with the wheel or +/− controls. Pan with Pan mode or Space + drag. Touch: pinch to zoom and use two fingers to pan. Ctrl/Cmd Z undoes; Ctrl/Cmd Shift Z redoes. Enter finishes a trace; Escape cancels it. The example is an illustrative practice layout, not a verified soldering plan.</p>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <noscript>This tracker needs JavaScript enabled in your browser.</noscript>
+</body>
+</html>

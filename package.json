@@ -1,0 +1,12 @@
+{
+  "name": "guitar-wiring-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Manual guitar wiring diagram tracing and progress tracker",
+  "scripts": {
+    "test": "node --test tests/core.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
