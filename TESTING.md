@@ -31,6 +31,17 @@ The following checks passed in the Codex in-app browser using the project served
 - Phone layout was inspected at 390 × 844; zoom controls work. A narrow-screen sidebar sizing issue was fixed and rechecked.
 - No application errors appeared in the browser error log during the final checks.
 
+## Published website checks
+
+The public HTTPS website at https://kickingmovie42.github.io/Guitar-Wiring-Tracker/ was deployed successfully on GitHub Pages and checked separately from local preview.
+
+- HTML, CSS, JavaScript, favicon, and example SVG are reachable online and exactly match the tested project files.
+- The example opens with eight connections and zero completed wires.
+- Completing a wire, undo/redo, zoom, Fit, and reload persistence passed online.
+- Online JSON export contains eight paths, the correct completion state, and an embedded PNG diagram.
+- Importing that backup restores progress; undo restores the previous workspace.
+- No errors appeared in the published website's browser error log during these checks.
+
 ## Verification limits
 
 Actual multi-touch pinch gestures and physical mobile devices were not exercised. Other browser engines were not independently tested. Direct file-URL preview could not be checked because the testing browser permits only HTTP/HTTPS; local HTTP preview passed. Storage exhaustion and permission-denied storage scenarios were not induced. These limits do not affect the completed HTTP preview checks above.
